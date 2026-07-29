@@ -214,8 +214,8 @@ export default class extends Controller {
     
     url.searchParams.set('input_name', this.inputNameValue)
     url.searchParams.set('link[href]', link.href ?? '')
-    url.searchParams.set('link[link_id]', link['maglev-link-id'])
-    url.searchParams.set('link[section_id]', link['maglev-section-id'])
+    url.searchParams.set('link[link_id]', link['maglev-link-id'] ?? '')
+    url.searchParams.set('link[section_id]', link['maglev-section-id'] ?? '')
     url.searchParams.set('link[open_new_window]', link.target === '_blank')
 
     // get or guess the link type
@@ -226,20 +226,43 @@ export default class extends Controller {
     // email
     if (linkType === 'email')
       url.searchParams.set('link[email]', link.href.replace('mailto:', ''))
-    
+
+    // Save the current native selection (the highlighted text) before the modal takes focus.
+    // When the user interacts with the modal inputs, the browser moves the selection away
+    // from the editor. We restore it later so the link can be applied to the right text.
+    const selection = window.getSelection()
+    if (selection.rangeCount > 0) {
+      this.savedLinkRange = selection.getRangeAt(0).cloneRange()
+    }
+
     Turbo.visit(url, { frame: 'modal' })
   }
 
   setLink(event) {
-    const link = JSON.parse(event.detail)
+    // The event detail is the parsed link payload, but we defensively accept a JSON string too.
+    const link = typeof event.detail === 'string' ? JSON.parse(event.detail) : event.detail
     log('setLink, link=', link)
-    this.editor.commands.setLink({ 
-      href: link.href, 
-      target: link.open_new_window ? '_blank' : '', 
-      'maglev-link-type': link.link_type,
-      'maglev-link-id': link.link_id,
-      'maglev-section-id': link.section_id
-    })
+
+    // Restore the native selection we saved when the link modal opened.
+    if (this.savedLinkRange) {
+      const selection = window.getSelection()
+      selection.removeAllRanges()
+      selection.addRange(this.savedLinkRange)
+      this.savedLinkRange = null
+    }
+
+    // Focus the editor so ProseMirror picks up the restored selection, then apply the link.
+    this.editor
+      .chain()
+      .focus()
+      .setLink({
+        href: link.href,
+        target: link.open_new_window ? '_blank' : '',
+        'maglev-link-type': link.link_type,
+        'maglev-link-id': link.link_id,
+        'maglev-section-id': link.section_id
+      })
+      .run()
   }
 
   unsetLink() {
