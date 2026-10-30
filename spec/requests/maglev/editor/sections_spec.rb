@@ -46,6 +46,69 @@ describe 'Maglev::Editor::Sections', type: :request do
     end
   end
 
+  describe 'POST /maglev/editor/:context/sections/:id/clone' do
+    let(:main_store) { fetch_sections_store('main', home_page.id) }
+    let(:section_id) { main_store.find_section_by_type('showcase')['id'] }
+    let(:clone_path) { "/maglev/editor/en/#{home_page.id}/sections/#{section_id}/clone" }
+
+    it 'clones the section and redirects to its editor with preview insertion headers' do
+      post clone_path, params: { store_id: 'footer' }
+
+      expect(response).to have_http_status(:see_other)
+      copy = main_store.reload.sections.last
+      expect(main_store.sections.size).to eq(3)
+      expect(copy['id']).not_to eq(section_id)
+      expect(response).to redirect_to("/maglev/editor/en/#{home_page.id}/sections/#{copy['id']}/edit")
+      follow_redirect!
+
+      expect(response).to be_successful
+      expect(response.headers['X-Section-Id']).to eq(copy['id'])
+      expect(response.headers['X-Layout-Store-Id']).to eq('main')
+      expect(response.headers['X-Section-Position']).to eq('2')
+      expect(response.body).to include('Section cloned.')
+    end
+
+    it 'ignores soft-deleted sections when positioning the preview copy' do
+      main_store.sections.first['deleted'] = true
+      main_store.save!
+
+      post clone_path
+      follow_redirect!
+
+      expect(response).to be_successful
+      expect(response.headers['X-Section-Position']).to eq('1')
+    end
+
+    it 'renders clone buttons in the list and toolbar with development view annotations enabled' do
+      allow(ActionView::Base).to receive(:annotate_rendered_view_with_filenames).and_return(true)
+
+      paths = ["/maglev/editor/en/#{home_page.id}", "/maglev/editor/en/#{home_page.id}/sections"]
+      paths.each_with_index do |path, index|
+        get path
+
+        expect(response).to be_successful
+        expect(response.body).to have_selector("form[action='#{clone_path}'] button[aria-label='Clone section']",
+                                               count: index + 1, visible: :all)
+      end
+    end
+
+    it 'preserves restrictions on sections that cannot be added twice' do
+      restricted_id = fetch_sections_store('header').find_section_by_type('navbar')['id']
+
+      post "/maglev/editor/en/#{home_page.id}/sections/#{restricted_id}/clone"
+
+      expect(response).to have_http_status(422)
+      expect(main_store.reload.sections.size).to eq(2)
+    end
+
+    it 'does not clone a section outside the current page' do
+      post "/maglev/editor/en/#{home_page.id}/sections/missing-section/clone"
+
+      expect(response).to redirect_to("/maglev/editor/en/#{home_page.id}/sections")
+      expect(main_store.reload.sections.size).to eq(2)
+    end
+  end
+
   describe 'GET /maglev/editor/:context/sections/:id/edit' do
     let(:main_store) { fetch_sections_store('main', home_page.id) }
     let(:section_id) { main_store.sections.dig(0, 'id') }
