@@ -40,6 +40,8 @@ module Maglev::SectionsConcern
   def replace_section_content(section, attributes)
     section['settings'] = attributes['settings']
     section['blocks'] = attributes['blocks']
+    # the label of the instance belongs to its content (site scoped / mirrored sections share it)
+    Maglev::Content::Label.copy(section, attributes)
     section
   end
 

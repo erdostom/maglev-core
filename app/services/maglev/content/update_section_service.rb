@@ -13,6 +13,7 @@ module Maglev
       argument :store
       argument :section_id
       argument :content
+      argument :label, default: nil # nil: keep the current label, blank string: remove it
       argument :lock_version, default: nil
 
       def call
@@ -48,6 +49,8 @@ module Maglev
       end
 
       def update_section_content(source)
+        Maglev::Content::Label.assign(find_section(source), label) unless label.nil?
+
         current_section_content = find_section_content(source)
 
         section_definition.settings.each do |setting|

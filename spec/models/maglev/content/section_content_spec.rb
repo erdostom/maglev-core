@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 
+# rubocop:disable Style/StringHashKeys
 RSpec.describe Maglev::Content::SectionContent do
   let(:theme) { build(:theme) }
   let(:page) { build(:page) }
@@ -14,6 +15,33 @@ RSpec.describe Maglev::Content::SectionContent do
   context '#label' do
     it 'takes the first text setting value' do
       expect(section_content.label).to eq 'Hello world'
+    end
+
+    it "doesn't have a custom label" do
+      expect(section_content.custom_label?).to eq false
+      expect(section_content.display_name).to eq 'Jumbotron'
+    end
+
+    context 'Given the editors labelled the section' do
+      let(:raw_section_content) { store.sections.first.merge('label' => 'Homepage hero') }
+
+      it 'takes the custom label first' do
+        expect(section_content.custom_label).to eq 'Homepage hero'
+        expect(section_content.custom_label?).to eq true
+        expect(section_content.label).to eq 'Homepage hero'
+        expect(section_content.preview_label).to eq 'Hello world'
+        expect(section_content.display_name).to eq 'Homepage hero'
+        expect(section_content.type_name).to eq 'Jumbotron'
+      end
+    end
+
+    context 'Given a section without any text value' do
+      let(:raw_section_content) { store.sections.first.merge('settings' => []) }
+
+      it 'has no label' do
+        expect(section_content.label?).to eq false
+        expect(section_content.display_name).to eq 'Jumbotron'
+      end
     end
   end
 
@@ -50,6 +78,25 @@ RSpec.describe Maglev::Content::SectionContent do
       it 'returns the block settings values' do
         expect(section_content.blocks.first.settings.first.value).to eq 'Home'
       end
+
+      it 'falls back to the first text setting value and the type name' do
+        block = section_content.blocks.first
+        expect(block.custom_label?).to eq false
+        expect(block.label).to eq 'Home'
+        expect(block.display_name).to eq 'Menu item'
+      end
+
+      context 'Given the editors labelled the block' do
+        before { store.sections.first['blocks'].first['label'] = 'Main entry' }
+
+        it 'takes the custom label first' do
+          block = section_content.blocks.first
+          expect(block.custom_label).to eq 'Main entry'
+          expect(block.label).to eq 'Main entry'
+          expect(block.display_name).to eq 'Main entry'
+          expect(block.name).to eq 'Menu item'
+        end
+      end
     end
   end
 
@@ -76,3 +123,4 @@ RSpec.describe Maglev::Content::SectionContent do
     end
   end
 end
+# rubocop:enable Style/StringHashKeys

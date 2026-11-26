@@ -74,6 +74,10 @@ es:
             main: "Principal"
             seo: "SEO"          
           layout_prompt: "Seleccionar un diseño"
+      custom_label:
+        label: "Etiqueta"
+        hint: "Solo visible en el editor, para distinguir los elementos."
+        cloned: "%{label} (copia)"
       sections:
         breadcrumb: "Secciones"
         index:

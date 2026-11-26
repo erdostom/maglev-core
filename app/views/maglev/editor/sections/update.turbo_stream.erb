@@ -8,3 +8,8 @@
 <%= turbo_stream.update dom_id(current_maglev_page, 'topbar-publish-button'), method: 'morph' do %>
   <%= render 'layouts/maglev/editor/topbar/publish_button' %>
 <% end %>
+
+<%= turbo_stream.update_all '[data-editor-page-layout-title]' do %>
+  <%= render 'maglev/editor/sections/title', section: @section %>
+<% end %>
+<%= turbo_stream.update "section-toolbar-label-#{@section.id}", @section.display_name %>

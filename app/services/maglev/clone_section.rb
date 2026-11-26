@@ -23,6 +23,7 @@ module Maglev
 
         copy = source_content(original).deep_dup.except('mirror_of', 'lock_version', 'deleted')
         copy['id'] = SecureRandom.urlsafe_base64(8)
+        label_copy(copy)
         blocks = copy.fetch('blocks', [])
         block_ids = blocks.to_h { |block| [block.fetch('id'), SecureRandom.urlsafe_base64(8)] }
         blocks.each do |block|
@@ -40,6 +41,14 @@ module Maglev
     end
 
     private
+
+    # a labelled section gets a distinct label so editors can tell the copy apart
+    def label_copy(copy)
+      label = Maglev::Content::Label.read(copy)
+      return if label.nil?
+
+      Maglev::Content::Label.assign(copy, ::I18n.t('maglev.editor.custom_label.cloned', label: label))
+    end
 
     def source_content(section)
       visited = Set.new

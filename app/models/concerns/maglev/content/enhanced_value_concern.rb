@@ -3,10 +3,21 @@
 module Maglev
   module Content
     module EnhancedValueConcern
+      # name displayed in the editor UI (lists, page titles, toolbars):
+      # the label given by the editor if any, otherwise the first text setting value.
       def label
-        @label ||= extract_enhanced_value_if do |setting_definition, value|
+        @label ||= custom_label.presence || preview_label
+      end
+
+      # value of the first text setting (or any setting able to provide a content label)
+      def preview_label
+        @preview_label ||= extract_enhanced_value_if do |setting_definition, value|
           setting_definition.content_label(value)
         end
+      end
+
+      def custom_label?
+        custom_label.present?
       end
 
       def label?

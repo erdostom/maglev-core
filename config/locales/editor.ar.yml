@@ -74,6 +74,10 @@ ar:
             main: "الرئيسية"
             seo: "تحسين محركات البحث"          
           layout_prompt: "اختر التخطيط"
+      custom_label:
+        label: "التسمية"
+        hint: "مرئي فقط في المحرر، للتمييز بين العناصر."
+        cloned: "%{label} (نسخة)"
       sections:
         breadcrumb: "الأقسام"
         index:

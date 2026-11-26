@@ -5,7 +5,7 @@
 # to a separate folder (content?)
 
 module Maglev
-  class SectionComponent < BaseComponent
+  class SectionComponent < BaseComponent # rubocop:disable Metrics/ClassLength
     include TagHelper
 
     extend Forwardable
@@ -34,6 +34,10 @@ module Maglev
     def dom_id
       @dom_id ||= "section-#{id}"
     end
+
+    # optional label given by the editors (nil if blank).
+    # Never rendered by Maglev itself, themes are free to use it (section.label).
+    def label = Maglev::Content::Label.read(attributes)
 
     # the lock version of the store the section content comes from
     # (stamped by the sections content fetcher, even for site scoped sections

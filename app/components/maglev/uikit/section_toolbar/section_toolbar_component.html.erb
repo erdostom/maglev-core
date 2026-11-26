@@ -10,7 +10,7 @@
   data-uikit-section-toolbar-id-value="<%= id %>"
 >
   <div class="w-full h-full relative mx-auto border-solid border-0 border-t-4 border-b-4 border-editor-primary group-[.is-leaving]/section-toolbar:border-transparent transition-border duration-200 ease-in-out">
-    <%= render Maglev::Uikit::SectionToolbar::TopLeftCornerComponent.new(label: label) %>
+    <%= render Maglev::Uikit::SectionToolbar::TopLeftCornerComponent.new(label: label, section_id: id) %>
     <%= render Maglev::Uikit::SectionToolbar::TopRightCornerComponent.new(id: id, paths: paths, options: options) %>
     <%= render Maglev::Uikit::SectionToolbar::BottomComponent.new(paths: paths, options: options) %>
   </div>

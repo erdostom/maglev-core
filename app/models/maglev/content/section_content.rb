@@ -6,7 +6,8 @@ module Maglev
       include ActiveModel::Model
       include Maglev::Content::EnhancedValueConcern
 
-      attr_accessor :id, :type, :settings, :blocks, :definition, :theme_id, :store_handle, :mirror_of, :lock_version
+      attr_accessor :id, :type, :settings, :blocks, :definition, :theme_id, :store_handle, :mirror_of, :lock_version,
+                    :custom_label
 
       def persisted?
         true
@@ -24,6 +25,11 @@ module Maglev
 
       def type_name
         definition.human_name
+      end
+
+      # the name to display when there is a single slot for it (page title, section toolbar)
+      def display_name
+        custom_label.presence || type_name
       end
 
       def blocks?
@@ -85,6 +91,7 @@ module Maglev
         end
       end
 
+      # rubocop:disable Metrics/MethodLength
       def self.build_without_blocks(theme:, store_handle:, raw_section_content:)
         new(
           id: raw_section_content['id'],
@@ -94,9 +101,11 @@ module Maglev
           theme_id: theme.id,
           store_handle: store_handle,
           lock_version: raw_section_content['lock_version'].presence || 0,
-          mirror_of: raw_section_content['mirror_of']
+          mirror_of: raw_section_content['mirror_of'],
+          custom_label: Maglev::Content::Label.read(raw_section_content)
         )
       end
+      # rubocop:enable Metrics/MethodLength
     end
   end
 end

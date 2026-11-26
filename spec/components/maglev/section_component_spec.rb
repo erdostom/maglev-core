@@ -61,6 +61,29 @@ describe Maglev::SectionComponent do
     end
   end
 
+  describe '#label' do
+    it 'is nil when the editors did not label the section' do
+      expect(component.label).to be_nil
+    end
+
+    context 'Given a labelled section and block' do
+      let(:store) { build(:sections_content_store, page: page) }
+      let(:attributes) do
+        store.find_section_by_type('showcase').deep_dup.tap do |section|
+          section['label'] = 'Our work'
+          section['blocks'].first['label'] = 'Flagship project'
+        end.deep_symbolize_keys
+      end
+      let(:definition) { theme.sections.find('showcase') }
+
+      it 'exposes the labels to the templates' do
+        expect(component.label).to eq 'Our work'
+        expect(component.blocks.first.label).to eq 'Flagship project'
+        expect(component.blocks.last.label).to be_nil
+      end
+    end
+  end
+
   describe '#render' do
     subject { pretty_html(component.render) }
 

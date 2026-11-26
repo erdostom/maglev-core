@@ -18,6 +18,8 @@
         }) do |item| %>
         <% item.with_handle %>
 
+        <% item.with_pre_title_content(section_block.name) if section_block.custom_label? %>
+
         <% if section_block.label? %>
           <% item.with_title_content(section_block.label) %>
         <% else %>

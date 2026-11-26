@@ -74,6 +74,10 @@ en:
             main: "Main"
             seo: "SEO"          
           layout_prompt: "Select a layout"
+      custom_label:
+        label: "Label"
+        hint: "Only visible in the editor, to tell items apart."
+        cloned: "%{label} (copy)"
       sections:
         breadcrumb: "Sections"
         actions:

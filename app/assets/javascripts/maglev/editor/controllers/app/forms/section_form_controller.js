@@ -38,6 +38,12 @@ export default class extends Controller {
     })
   }
 
+  // the editor-only label doesn't change the preview, we just need to persist it
+  onLabelChange() {
+    log('[SectionForm::onLabelChange]', this.sourceId)
+    this.afterSettingUpdate({ detail: { updated: true } })
+  }
+
   onPersist(event) {
     log('[SectionForm::onPersist]', event.detail, typeof event.detail)
     this.lockVersionTarget.value = event.detail.lockVersion

@@ -74,6 +74,10 @@
             main: "Principal"
             seo: "SEO"          
           layout_prompt: "Selecionar um layout"
+      custom_label:
+        label: "Rótulo"
+        hint: "Visível apenas no editor, para distinguir os itens."
+        cloned: "%{label} (cópia)"
       sections:
         breadcrumb: "Seções"
         index:

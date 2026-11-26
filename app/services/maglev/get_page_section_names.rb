@@ -55,13 +55,41 @@ module Maglev
 
     def build_item(section, store_definition)
       definition = theme.sections.find(section['type'])
+      custom_label = Maglev::Content::Label.read(label_source(section, definition))
       {
         id: section['id'],
         type: section['type'],
-        label: definition.human_name,
+        label: display_label(custom_label, definition),
+        custom_label: custom_label,
         layout_store_id: store_definition.id,
         layout_store_label: store_definition.human_name
       }
+    end
+
+    def display_label(custom_label, definition)
+      custom_label ? "#{custom_label} (#{definition.human_name})" : definition.human_name
+    end
+
+    # the label of site scoped and mirrored sections lives with their actual content
+    def label_source(section, definition)
+      source = if definition.site_scoped?
+                 site_scoped_store&.find_section_by_type(section['type'])
+               elsif section.dig('mirror_of', 'enabled')
+                 find_mirrored_section(section['mirror_of'])
+               end
+      source || section
+    end
+
+    def site_scoped_store
+      return @site_scoped_store if defined?(@site_scoped_store)
+
+      @site_scoped_store = scoped_store.unpublished.find_by(handle: ::Maglev::SectionsContentStore::SITE_HANDLE)
+    end
+
+    def find_mirrored_section(mirror_of)
+      handle = mirror_of['layout_store_id'] || mirror_of['layout_group_id']
+      scoped_store.unpublished.find_by(handle: handle, maglev_page_id: mirror_of['page_id'])
+                  &.find_section_by_id(mirror_of['section_id'])
     end
 
     def fetch_sections(store)

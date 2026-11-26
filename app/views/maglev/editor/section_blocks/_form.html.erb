@@ -1,3 +1,5 @@
+<%= render 'maglev/editor/shared/custom_label_field', value: @section_block.custom_label, placeholder: @section_block.name unless defined?(advanced) && advanced %>
+
 <% if @section_block.definition.empty? %>
   <%= render Maglev::Uikit::Well::SimpleWellComponent.new do |well| %>
     <% well.with_title_content(t('maglev.editor.section_blocks.edit.no_settings')) %>

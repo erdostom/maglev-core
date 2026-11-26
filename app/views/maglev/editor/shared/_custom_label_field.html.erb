@@ -1,0 +1,17 @@
+<%# Optional editor-only label of a section or a block instance (see Maglev::Content::Label) %>
+<div class="mb-6 space-y-1 flex flex-col" data-editor-custom-label-field>
+  <label for="custom_label" class="block font-semibold text-gray-800">
+    <%= t('maglev.editor.custom_label.label') %>
+  </label>
+  <%= text_field_tag 'custom_label', value,
+    id: 'custom_label',
+    maxlength: Maglev::Content::Label::MAX_LENGTH,
+    placeholder: placeholder,
+    autocomplete: 'off',
+    class: 'block py-2 px-3 rounded bg-gray-100 text-gray-800 focus:outline-none focus:ring focus:ring-inset focus:ring-2 focus:ring-editor-primary/50 placeholder-gray-500',
+    data: {
+      action: 'change->editor-section-form#onLabelChange keydown.enter->editor-section-form#onLabelChange:prevent'
+    }
+  %>
+  <p class="text-xs text-gray-500"><%= t('maglev.editor.custom_label.hint') %></p>
+</div>

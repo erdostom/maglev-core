@@ -1,0 +1,6 @@
+<span class="text-gray-800 font-extrabold">#<%= section_block.position_in_parent + 1 %></span>
+&dash;
+<%= section_block.display_name %>
+<% if section_block.custom_label? %>
+  <span class="ms-1 text-sm font-normal text-gray-400"><%= section_block.name %></span>
+<% end %>

@@ -34,6 +34,7 @@ module Maglev
       def update
         update_section_block
         current_maglev_page.reload # reload the page to get the updated published_at
+        reload_section_block # the title displays its (maybe new) label
         flash.now[:notice] = flash_t(:success)
       end
 
@@ -69,6 +70,12 @@ module Maglev
         redirect_to editor_sections_stores_path_with_context unless @section_block
       end
 
+      def reload_section_block
+        @current_maglev_page_content = nil
+        @section = current_maglev_page_content.find_section(@section.id) || @section
+        @section_block = @section.blocks.find(@section_block.id) || @section_block
+      end
+
       def sections_store
         @sections_store ||= services.fetch_sections_store.call(page: current_maglev_page, handle: @section.store_handle)
       end
@@ -78,7 +85,8 @@ module Maglev
           store: sections_store,
           section_id: @section.id,
           block_id: @section_block.id,
-          content: params[:section_block].to_unsafe_h,
+          content: params[:section_block]&.to_unsafe_h || {},
+          label: params[:custom_label],
           lock_version: params[:lock_version]
         )
       end

@@ -7,7 +7,8 @@ module Maglev
     extend Forwardable
     def_delegators :section, :site, :page, :config
 
-    attr_reader :section, :id, :name, :type, :settings, :attributes, :definition
+    # label: optional label given by the editors (nil if blank), never rendered by Maglev itself
+    attr_reader :section, :id, :name, :type, :settings, :attributes, :definition, :label
     attr_accessor :children
 
     # rubocop:disable Lint/MissingSuper
@@ -16,6 +17,7 @@ module Maglev
       @id = attributes[:id]
       @name = attributes[:name]
       @type = attributes[:type]
+      @label = Maglev::Content::Label.read(attributes)
       @children = children
       @definition = definition
 

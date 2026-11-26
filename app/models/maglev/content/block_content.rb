@@ -6,7 +6,8 @@ module Maglev
       include ActiveModel::Model
       include Maglev::Content::EnhancedValueConcern
 
-      attr_accessor :id, :type, :settings, :definition, :position, :parent_id, :position_in_parent
+      attr_accessor :id, :type, :settings, :definition, :position, :parent_id, :position_in_parent,
+                    :custom_label
 
       def persisted?
         true
@@ -22,6 +23,10 @@ module Maglev
         definition.human_name
       end
 
+      def display_name
+        custom_label.presence || name
+      end
+
       def self.build(raw_block_content:, definition:, position:)
         new(
           id: raw_block_content['id'],
@@ -29,6 +34,7 @@ module Maglev
           type: raw_block_content['type'],
           settings: Maglev::Content::SettingContent::AssociationProxy.new(raw_block_content['settings']),
           parent_id: raw_block_content['parent_id'],
+          custom_label: Maglev::Content::Label.read(raw_block_content),
           position: position
         )
       end

@@ -74,6 +74,10 @@ fr:
             main: "Principal"
             seo: "SEO"          
           layout_prompt: "Sélectionner une mise en page"
+      custom_label:
+        label: "Libellé"
+        hint: "Visible uniquement dans l'éditeur, pour distinguer les éléments."
+        cloned: "%{label} (copie)"
       sections:
         breadcrumb: "Sections"
         index:
